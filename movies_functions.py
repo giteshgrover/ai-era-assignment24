@@ -6,10 +6,10 @@ from imdb import Cinemagoer
 
 def functions_description():
     return """
-1. check_new_movies_added(string) It takes a popular streaming platform name (such as netflix, prime, peacock, hulu or ALL) as input and It gets the newly added movies in that streaming platform and returns a dictionary whose keys are list of movie titles that have been recently added and the values are the metadata about the movies (another dictionary with information about the movie) such as 'releaseYear', 'streamingServices', 'genres', etc
+1. check_new_movies_added(string) It takes a popular streaming platform name (such as netflix, prime, peacock, hulu or ALL) as input and It gets the newly added movies in that streaming platform and returns a dictionary whose keys are list of movie titles that have been recently added and the values are the metadata about the movies (another dictionary with information about the movie ) such as 'releaseYear', 'streaming_links' etc
 2. check_ratings(list) It takes a list of movie titles of type string and returns a dictionary whose keys are the movie titles and values are the float ratings
 3. sort_by_ratings(dict) It takes a dictionary whose keys are whose keys are the movie titles and values are the float ratings and returns another dictionary sorted by the rating values.
-4. select_top_movies(list, top_n) It takes the list of movie titles and the top n number and returns the top n movies from the list
+4. select_top_movies(list, top_n) It takes the list of movie titles and the top n number and returns the top n movies from the list.
 """
 
 def functions_map():

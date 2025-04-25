@@ -33,7 +33,7 @@ model = get_llm_model()
 
 system_prompt = f"""You are a agent solving problems in iterations. Respond with EXACTLY ONE of these formats:
 1. FUNCTION_CALL: python_function_name||inputParam1|inputParam2|inputParam3 ...
-2. FINAL_ANSWER: [movie title (releaseYear) - IMDB rating] . Also include the other details about the movie if present.
+2. FINAL_ANSWER: [movie title (releaseYear) - IMDB rating - streaming links].
 
 where python_function_name is one of the followin:
 {functions_description()}

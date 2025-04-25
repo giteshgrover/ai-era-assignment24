@@ -6,10 +6,10 @@ from imdb import Cinemagoer
 
 def functions_description():
     return """
-1. check_new_movies_added(string) It takes a popular streaming platform name (such as netflix, prime, peacock, hulu) as input and It gets the newly added movies in that streaming platform and returns a list of movie titles
+1. check_new_movies_added(string) It takes a popular streaming platform name (such as netflix, prime, peacock, hulu or ALL) as input and It gets the newly added movies in that streaming platform and returns a dictionary whose keys are list of movie titles that have been recently added and the values are the metadata about the movies (another dictionary with information about the movie) such as 'releaseYear', 'streamingServices', 'genres', etc
 2. check_ratings(list) It takes a list of movie titles of type string and returns a dictionary whose keys are the movie titles and values are the float ratings
 3. sort_by_ratings(dict) It takes a dictionary whose keys are whose keys are the movie titles and values are the float ratings and returns another dictionary sorted by the rating values.
-4. select_top_movies(list, top_n) It takes the list of movie titles and the top n number and returns the first n values of the list 
+4. select_top_movies(list, top_n) It takes the list of movie titles and the top n number and returns the top n movies from the list
 """
 
 def functions_map():
@@ -21,26 +21,31 @@ def functions_map():
     }
 
 def check_new_movies_added(catalog):
+    print("************************************")
+    print("In check_new_movies_added")
+    print("************************************")
     # Call Netflix
     # Call Prime
     rapid_api_key = os.getenv("RAPID_API_KEY")
     url = "https://streaming-availability.p.rapidapi.com/changes"
     querystring = {
         "country": "us",
-        # "catalogs": catalog,
         "change_type": "new",
         "item_type": "show",
         "show_type": "movie",
         "output_language":"en",
         "order_direction":"asc"
     }
+    if catalog != 'ALL':
+        querystring.update({"catalogs": catalog})
+    
     headers = {
         "X-RapidAPI-Key": rapid_api_key,
         "X-RapidAPI-Host": "streaming-availability.p.rapidapi.com"
     }
 
-    print(f"querystring: {querystring}")
-    movies_list = []
+    # print(f"querystring: {querystring}")
+    movies_dict = {}
     response = requests.get(url, headers=headers, params=querystring)
     # print(response.json())
     if response.status_code == 200:
@@ -49,21 +54,34 @@ def check_new_movies_added(catalog):
         
         print(f"Found {len(movies)} new movies:")
         for movie_key in movies:
-            print(movie_key)
+            # print(movie_key)
             title = movies[movie_key].get("title")
-            movies_list.append(title)
             release_year = movies[movie_key].get("releaseYear")
             streaming_info = movies[movie_key].get("streamingOptions", {})
-            platforms = ", ".join(streaming_info.keys()) if streaming_info else "Unknown"
-            print(f"- {title} ({release_year}) on {platforms}")
+            streaming_links = get_streaming_links(streaming_info.values())
+            movies_dict[title] = {"release_year": release_year, 
+                                  "streaming_links": streaming_links
+                                  }
+            # print(f"- {title} ({release_year}) on {streaming_links}")
                 
     else:
         print(f"Failed to fetch data: {response.status_code}")
         print(response.text)
 
-    return movies_list
+    return movies_dict
+
+def get_streaming_links(stream_details_listlist):
+    if not stream_details_listlist:
+        return ""
+    service_list = [stream_detail for stream_detail_list in stream_details_listlist for stream_detail in stream_detail_list]
+    # print(f"stream_details_list {[stream_detail.keys() for stream_detail_list in stream_details_listlist for stream_detail in stream_detail_list]}")
+    return [stream_detail['link'] for stream_detail_list in stream_details_listlist for stream_detail in stream_detail_list]
+
 
 def check_ratings(movies_list):
+    print("************************************")
+    print(f"In CheckRating FUNTION {movies_list}")
+    print("************************************")
     if(isinstance(movies_list, str)):
         movies_list = ast.literal_eval(movies_list)
     ratings_dict = {}
@@ -74,6 +92,8 @@ def check_ratings(movies_list):
             ratings_dict[movie] = float(rating)
         except Exception as e:
             ratings_dict[movie] = float(0)
+
+    return ratings_dict
 
 
 def get_imdb_rating(title):
@@ -120,10 +140,21 @@ def get_imdb_rating(title):
 #     return ratings_dict
 
 def sort_by_ratings(movies_rating_dict):
+    print("************************************")
+    print(f"In sort_by_ratings FUNTION {movies_rating_dict}")
+    print("************************************")
+    if(isinstance(movies_rating_dict, str)):
+        movies_rating_dict = ast.literal_eval(movies_rating_dict)
     return dict(sorted(movies_rating_dict.items(), key=lambda item:item[1], reverse=True))
 
 def select_top_movies(sorted_movies_dict, top_n):
+    print("************************************")
+    print(f"In select_top_movies FUNTION {sorted_movies_dict} and {top_n}")
+    print("************************************")
+    if(isinstance(sorted_movies_dict, str)):
+        sorted_movies_dict = ast.literal_eval(sorted_movies_dict)
+    top_n = int(top_n)
     if len(sorted_movies_dict) > top_n:
-        return sorted_movies_dict
-    else:
         return sorted_movies_dict[:top_n]
+    else:
+        return sorted_movies_dict

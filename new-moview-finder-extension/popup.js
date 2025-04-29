@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Create movie info
                 const infoElement = document.createElement('div');
                 infoElement.className = 'movie-info';
-                infoElement.textContent = `Released in ${movie.year} | Rating: ${movie.rating}`;
+                infoElement.textContent = `Released in ${movie.year} | IMDB Rating: ${movie.rating}`;
                 
                 // Create streaming links
                 const linksElement = document.createElement('div');

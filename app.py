@@ -1,4 +1,5 @@
 import os
+import ast
 from dotenv import load_dotenv
 import google.generativeai as genai
 from movies_functions import functions_map, functions_description
@@ -6,6 +7,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
+from pdb import set_trace
 
 app = FastAPI()
 
@@ -52,7 +54,7 @@ def process_movie_query(query: str) -> str:
 
     system_prompt = f"""You are a agent solving problems in iterations. Respond with EXACTLY ONE of these formats:
     1. FUNCTION_CALL: python_function_name||inputParam1|inputParam2|inputParam3 ...
-    2. FINAL_ANSWER: [movie title (releaseYear) - IMDB rating - streaming links].
+    2. FINAL_ANSWER: [movie title (releaseYear) - IMDB rating - (streaming links)]. Where streaming links (within the '(' ')') is space separated links and the movie info within the '[' ']' is comma separated.
 
     where python_function_name is one of the following:
     {functions_description()}
@@ -90,7 +92,9 @@ def parse_movie_info(movie_str: str) -> dict:
     if len(parts) >= 3:
         title_year = parts[0].strip()
         rating = parts[1].strip()
-        streaming_links = [link.strip() for link in parts[2].split(",")]
+        
+        streaming_links = [link.strip() for link in parts[2].strip('()').split()]
+        set_trace()
         
         # Extract title and year
         title = title_year.split("(")[0].strip()
@@ -108,10 +112,11 @@ def parse_movie_info(movie_str: str) -> dict:
 async def handle_query(request: QueryRequest):
     try:
         result = process_movie_query(request.query)
+        # result = ast.literal_eval(result)
         print(f"result: {result}")
         
         # Split the result into individual movies
-        movies = [movie.strip() for movie in result.split("\n") if movie.strip()]
+        movies = [movie.strip().strip('[]') for movie in result.split(",") if movie.strip()]
         
         # Parse each movie
         parsed_movies = []
@@ -122,7 +127,8 @@ async def handle_query(request: QueryRequest):
         
         if not parsed_movies:
             raise HTTPException(status_code=400, detail="No valid movies found in response")
-            
+
+        print(f"****parsed_movies {parsed_movies}")    
         return MovieResponse(movies=parsed_movies)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

@@ -14,11 +14,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const API_URL = 'http://localhost:8000/query';
 
     searchButton.addEventListener('click', async function() {
-        const streaming_options = []
+        const streaming_options = [];
         streamingInputs.forEach(si => {if(si.checked) {streaming_options.push(si.value.trim())}});
         // const query = queryInput.value.trim();
-        if (!streaming_options || streaming_options.length == 0) {
-            showError('Please select atleast one checkbox');
+        if (!streaming_options && streaming_options.length == 0) {
+            showError('Please select atleast one radio');
             return;
         }
         const topK = topkInput.value.trim();
@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ topK: topK,  streaming_options: streaming_options})
+                body: JSON.stringify({ topK: topK,  streaming_option: streaming_options[0]})
             });
 
             if (!response.ok) {

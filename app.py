@@ -23,7 +23,7 @@ app.add_middleware(
 class QueryRequest(BaseModel):
     # query: str
     topK: int
-    streaming_options: List[str]
+    streaming_option: str
 
 class MovieResponse(BaseModel):
     movies: List[dict]
@@ -117,7 +117,7 @@ def parse_movie_info(movie_str: str) -> dict:
 @app.post("/query", response_model=MovieResponse)
 async def handle_query(request: QueryRequest):
     try:
-        query = f"Find new top {request.topK} IMDB rated movies in {request.streaming_options} streaming platforms"
+        query = f"Find new top {request.topK} IMDB rated movies in {request.streaming_option} streaming platforms"
         result = process_movie_query(query)
         # result = ast.literal_eval(result)
         print(f"result: {result}")

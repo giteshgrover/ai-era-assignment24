@@ -21,7 +21,9 @@ app.add_middleware(
 )
 
 class QueryRequest(BaseModel):
-    query: str
+    # query: str
+    topK: int
+    streaming_options: List[str]
 
 class MovieResponse(BaseModel):
     movies: List[dict]
@@ -46,7 +48,8 @@ def function_caller(func_name, *args):
         return f"Function {func_name} not found"
 
 def process_movie_query(query: str) -> str:
-    max_iterations = 5
+    print(f"query {query}")
+    max_iterations = 7
     last_response = None
     iteration = 0
     iteration_response = []
@@ -61,6 +64,7 @@ def process_movie_query(query: str) -> str:
     DO NOT include multiple responses. Give ONE response at a time."""
 
     while iteration < max_iterations:
+        print(f"\n--- Iteration {iteration + 1} ---")
         if last_response is None:
             current_query = query
         else:
@@ -70,6 +74,7 @@ def process_movie_query(query: str) -> str:
         prompt = f"{system_prompt}\n\nQuery: {current_query}"
         response = model.generate_content(prompt)
         response_text = response.text.strip()
+        print(f"LLM Response: {response_text}")
 
         if response_text.startswith("FUNCTION_CALL:"):
             _, function_info = response_text.split(":", 1)
@@ -78,8 +83,10 @@ def process_movie_query(query: str) -> str:
             params = [x.strip() for x in func_details[1].split("|")]
             iteration_result = function_caller(func_name, *params)
         elif response_text.startswith("FINAL_ANSWER:"):
+            print("\n=== Agent Execution Complete ===")
             return response_text.replace("FINAL_ANSWER:", "").strip()
 
+        print(f"  Result: {iteration_result}")
         iteration_response.append(f"In the {iteration + 1} iteration you called {func_name} with {params} parameters, and the function returned {iteration_result}.")
         last_response = iteration_result
         iteration += 1
@@ -94,7 +101,6 @@ def parse_movie_info(movie_str: str) -> dict:
         rating = parts[1].strip()
         
         streaming_links = [link.strip() for link in parts[2].strip('()').split()]
-        set_trace()
         
         # Extract title and year
         title = title_year.split("(")[0].strip()
@@ -111,7 +117,8 @@ def parse_movie_info(movie_str: str) -> dict:
 @app.post("/query", response_model=MovieResponse)
 async def handle_query(request: QueryRequest):
     try:
-        result = process_movie_query(request.query)
+        query = f"Find new top {request.topK} IMDB rated movies in {request.streaming_options} streaming platforms"
+        result = process_movie_query(query)
         # result = ast.literal_eval(result)
         print(f"result: {result}")
         

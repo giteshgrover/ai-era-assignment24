@@ -94,12 +94,85 @@
             margin-top: 10px;
             text-align: center;
         }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        .input-label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: bold;
+        }
+        .number-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .streaming-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .streaming-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .streaming-option input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+        }
+        .streaming-option label {
+            color: #333;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Movie Finder</h1>
-        <input type="text" id="query" class="search-box" placeholder="Enter your movie query...">
+        <h2>Find the newly added top IMDB rated movies in the streaming platforms</h2>
+        <div class="input-group">
+            <label class="input-label" for="topK">Number of Movies to Show (1-10):</label>
+            <input type="number" id="topK" class="number-input" min="1" max="10" value="5">
+        </div>
+        <div class="input-group">
+            <label class="input-label">Streaming Services:</label>
+            <div class="streaming-options">
+                <div class="streaming-option">
+                    <input type="checkbox" id="streaming-option" name="streaming" value="ALL" checked>
+                    <label for="all">ALL</label>
+                </div>
+                <div class="streaming-option">
+                    <input type="checkbox" id="streaming-option" name="streaming" value="netflix">
+                    <label for="netflix">Netflix</label>
+                </div>
+                <div class="streaming-option">
+                    <input type="checkbox" id="streaming-option" name="streaming" value="hulu">
+                    <label for="hulu">Hulu</label>
+                </div>
+                <div class="streaming-option">
+                    <input type="checkbox" id="streaming-option" name="streaming" value="prime">
+                    <label for="prime">Prime Video</label>
+                </div>
+                <div class="streaming-option">
+                    <input type="checkbox" id="streaming-option" name="streaming" value="apple">
+                    <label for="apple">Apple TV+</label>
+                </div>
+                <div class="streaming-option">
+                    <input type="checkbox" id="streaming-option" name="streaming" value="peacock">
+                    <label for="peacock">Peacock</label>
+                </div>
+                <div class="streaming-option">
+                    <input type="checkbox" id="streaming-option" name="streaming" value="plutotv">
+                    <label for="plutotv">Pluto TV</label>
+                </div>
+            </div>
+        </div>
+        <!-- <input type="text" id="query" class="search-box" placeholder="Enter your movie query..."> -->
         <button id="search" class="search-button">Search</button>
         <div id="result" class="result" style="display: none;"></div>
         <div id="loading" class="loading" style="display: none;">Loading...</div>

@@ -1,6 +1,8 @@
 document.addEventListener('DOMContentLoaded', function() {
     const searchButton = document.getElementById('search');
-    const queryInput = document.getElementById('query');
+    // const queryInput = document.getElementById('query');
+    const streamingInputs = document.getElementsByName('streaming');
+    const topkInput = document.getElementById('topK');
     const resultDiv = document.getElementById('result');
     const loadingDiv = document.getElementById('loading');
     const errorDiv = document.getElementById('error');
@@ -12,11 +14,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const API_URL = 'http://localhost:8000/query';
 
     searchButton.addEventListener('click', async function() {
-        const query = queryInput.value.trim();
-        if (!query) {
-            showError('Please enter a search query');
+        const streaming_options = []
+        streamingInputs.forEach(si => {if(si.checked) {streaming_options.push(si.value.trim())}});
+        // const query = queryInput.value.trim();
+        if (!streaming_options || streaming_options.length == 0) {
+            showError('Please select atleast one checkbox');
             return;
         }
+        const topK = topkInput.value.trim();
 
         // Show loading state
         loadingDiv.style.display = 'block';
@@ -29,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ query: query })
+                body: JSON.stringify({ topK: topK,  streaming_options: streaming_options})
             });
 
             if (!response.ok) {
@@ -102,9 +107,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Allow search on Enter key
-    queryInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            searchButton.click();
-        }
-    });
+    // queryInput.addEventListener('keypress', function(e) {
+    //     if (e.key === 'Enter') {
+    //         searchButton.click();
+    //     }
+    // });
 }); 
